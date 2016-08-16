@@ -8,11 +8,63 @@ import simplejson
 import cgi
 
 
-class LocalData(object):
+# urls:
+# - https://docs.python.org/3/glossary.html#term-global-interpreter-lock
+# - http://stackoverflow.com/questions/1312331/using-a-global-dictionary-with-threads-in-python
+# - http://stackoverflow.com/questions/105095/are-locks-unnecessary-in-multi-threaded-python-code-because-of-the-gil
+# - https://docs.python.org/3/library/dis.html#opcode-STORE_SUBSCR
+# -> au final, sur des operations "aussi courtes", l'interpreteur python est deja protege.
+
+class LocalData_without_Mutex(object):
     """
 
     """
-    records = {}
+    _records = {}
+
+    @staticmethod
+    def get_record(id_record):
+        """
+
+        """
+        return LocalData_without_Mutex._records[id_record]
+
+    @staticmethod
+    def set_record(id_record, record_):
+        """
+
+        """
+        LocalData_without_Mutex._records[id_record] = record_
+
+
+class LocalData_with_Mutex(object):
+    """
+
+    """
+    _lock = threading.Lock()
+    _records = {}
+
+    @staticmethod
+    def get_record(id_record):
+        """
+        Mutex safe (static) method to get a record
+        """
+        LocalData_with_Mutex._lock.acquire()
+        record = LocalData_with_Mutex._records[id_record]
+        LocalData_with_Mutex._lock.release()
+        return record
+
+    @staticmethod
+    def set_record(id_record, record_):
+        """
+        Mutex safe (static) method to set a record
+        """
+        LocalData_with_Mutex._lock.acquire()
+        LocalData_with_Mutex._records[id_record] = record_
+        LocalData_with_Mutex._lock.release()
+
+
+LocalData = LocalData_without_Mutex
+# LocalData = LocalData_with_Mutex
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler, object):
@@ -49,12 +101,31 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, object):
         """
         return 'api/v1/getrecord/'
 
+    @staticmethod
+    def get_pattern_for_POST():
+        return HTTPRequestHandler.get_path_for_POST() + '*'
+
+    @staticmethod
+    def get_pattern_for_GET():
+        return HTTPRequestHandler.get_path_for_GET() + '*'
+
+    def _send_response_with_end_headers(self, status_code, msg=None):
+        """
+
+        :param status_code:
+        :param msg:
+        :return:
+        """
+        self.send_response(status_code, msg)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+
     def do_POST(self):
         """
 
         :return:
         """
-        pattern_for_POST = self.get_path_for_POST() + '*'
+        pattern_for_POST = self.get_pattern_for_POST()
         if re.search(pattern_for_POST, self.path) is not None:
             ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
             if ctype == 'application/json':
@@ -62,19 +133,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, object):
                 data = self.rfile.read(length)
                 # url: http://stackoverflow.com/questions/31371166/reading-json-from-simplehttpserver-post-data
                 data_json = simplejson.loads(data)
-                recordID = self.get_suffix('api/v1/addrecord/', self.path)
-                LocalData.records[recordID] = data_json
+                recordID = self.get_suffix(self.get_path_for_POST(), self.path)
+                LocalData.set_record(recordID, data_json)
+                self._send_response_with_end_headers(200)
             else:
-                self.send_response(400, 'Bad Request: support only application/json')
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-
-            self.send_response(200)
-            self.end_headers()
+                self._send_response_with_end_headers(400, 'Bad Request: support only application/json')
         else:
-            self.send_response(403, 'Bad Request: wrong path, support only "/api/v1/addrecord/*" for posting')
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
+            self._send_response_with_end_headers(403,
+                                                 'Bad Request: wrong path, support only "/api/v1/addrecord/*" for posting')
         return
 
     def do_GET(self):
@@ -82,8 +148,18 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, object):
 
         :return:
         """
-        self.send_response(200)
-        self.end_headers()
+        pattern_for_GET = self.get_pattern_for_GET()
+        if re.search(pattern_for_GET, self.path) is not None:
+            recordID = self.get_suffix(self.get_path_for_GET(), self.path)
+            try:
+                record = LocalData.get_record(recordID)
+                self._send_response_with_end_headers(200)
+                #
+                self.wfile.write(record)
+            except KeyError:
+                self._send_response_with_end_headers(401, "Bad Request: ")
+        else:
+            self._send_response_with_end_headers(403, "Bad Request: ")
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):

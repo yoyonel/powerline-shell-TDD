@@ -3,6 +3,7 @@ __author__ = 'atty'
 import subprocess
 import threading
 import requests
+import ast
 
 
 def execute_cmd(cmd, default=""):
@@ -271,3 +272,12 @@ def perform_POST_request(ip, port, path="", data=None, json=None):
     ...     pass
     """
     return requests.post(build_url(ip, port, path), data=data, json=json)
+
+
+def get_dict_from_get_response(get_response):
+    """
+
+    :param get_response:
+    :return:
+    """
+    return ast.literal_eval(get_response.content)
