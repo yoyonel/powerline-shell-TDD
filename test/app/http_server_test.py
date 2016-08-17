@@ -3,11 +3,10 @@ __author__ = 'atty'
 
 import unittest
 from app.http_server import SimpleHTTPServer, HTTPRequestHandler, LocalData
-from tools.tools import remote_tcp_port_is_open, \
-    is_thread_alive, is_thread_daemon, \
-    perform_GET_request, perform_POST_request, \
-    get_dict_from_get_response
 import SocketServer
+from tools.tools_httpserver import perform_GET_request, perform_POST_request, get_dict_from_get_response
+from tools.tools_network import remote_tcp_port_is_free_bash_version
+from tools.tools_threads import is_thread_alive, is_thread_daemon
 
 
 # [TODO]: Docs/urls à lire
@@ -56,8 +55,8 @@ class Test_HTTPServer(unittest.TestCase):
         #
         http_server = SimpleHTTPServer(ip=self.ip, port=self.port)
         http_server.acquire()
-        ########################################################################
-        self.assertEqual(remote_tcp_port_is_open(http_server.ip, http_server.port), False)
+        # #######################################################################
+        self.assertEqual(remote_tcp_port_is_free_bash_version(http_server.ip, http_server.port), False)
         ########################################################################
 
     def test_httpserver_return_error_if_adress_if_already_bind(self):
@@ -69,7 +68,7 @@ class Test_HTTPServer(unittest.TestCase):
         http_server.acquire()
 
         http_server_2 = SimpleHTTPServer(ip=self.ip, port=self.port)
-        ########################################################################
+        # #######################################################################
         self.assertRaises(SocketServer.socket.error, http_server_2.acquire)
         self.assertRaises(SimpleHTTPServer.SocketError, http_server_2.acquire)
         ########################################################################
@@ -80,7 +79,7 @@ class Test_HTTPServer(unittest.TestCase):
         :return:
         """
         http_server = SimpleHTTPServer("wrong ip", port=self.port)
-        ########################################################################
+        # #######################################################################
         self.assertRaises(SocketServer.socket.error, http_server.acquire)
         self.assertRaises(SimpleHTTPServer.SocketError, http_server.acquire)
         ########################################################################
@@ -90,7 +89,7 @@ class Test_HTTPServer(unittest.TestCase):
 
         :return:
         """
-        ########################################################################
+        # #######################################################################
         # ip
         self.assertRaises(ValueError, SimpleHTTPServer, 1, self.port)
         # port
@@ -109,7 +108,7 @@ class Test_HTTPServer(unittest.TestCase):
         http_server.acquire()
         http_server.start(thread_name="test_httpserver_thread")
 
-        ########################################################################
+        # #######################################################################
         # on test si le thread utilise par le server http
         # est lance et utilise en mode daemon
         self.assertEqual(is_thread_alive(http_server.thread_name), True)
@@ -124,7 +123,7 @@ class Test_HTTPServer(unittest.TestCase):
         :return:
         """
         http_server = SimpleHTTPServer(ip=self.ip, port=self.port)
-        ########################################################################
+        # #######################################################################
         self.assertRaises(SimpleHTTPServer.StartError, http_server.start)
         ########################################################################
 
@@ -182,7 +181,7 @@ class Test_HTTPServer(unittest.TestCase):
 
         http_server.stop()
 
-        ########################################################################
+        # #######################################################################
         self.assertEqual(response.status_code, 200)  # status_code == OK
         self.assertEqual(path_suffix_for_test in LocalData._records, True)
         ########################################################################
@@ -207,7 +206,7 @@ class Test_HTTPServer(unittest.TestCase):
 
         http_server.stop()
 
-        ########################################################################
+        # #######################################################################
         self.assertEqual(response.status_code, 200)  # status_code == OK
         self.assertEqual(path_suffix_for_test in LocalData._records, True)
         self.assertEqual(LocalData._records[path_suffix_for_test], json)
@@ -251,6 +250,7 @@ class Test_HTTPServer(unittest.TestCase):
         ########################################################################
         self.assertEqual(dict_json_from_get_request, json)  # la reponse est celle attendue (celle envoyee)
         ########################################################################
+
 
 if __name__ == '__main__':
     unittest.main()
