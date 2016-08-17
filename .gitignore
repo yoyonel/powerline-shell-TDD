@@ -90,6 +90,7 @@ ENV/
 
 # PyCharm
 #.idea
+.idea/workspace.xml
 
 # Coverage
 coverage/
