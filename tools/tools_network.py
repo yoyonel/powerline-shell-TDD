@@ -29,6 +29,10 @@ def decorator_wait_for_open_port(method, timeout=0.5):
     sur l'accessibilite d'un port (sur ip).
     Ce decorateur est particulierement util pour la synchronisation des tests (unitaires).
 
+    urls:
+    - http://stackoverflow.com/questions/11731136/python-class-method-decorator-w-self-arguments
+    -> http://stackoverflow.com/a/36944992
+
     :param method:
     :type method: function
     :param timeout:

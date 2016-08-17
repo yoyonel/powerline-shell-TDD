@@ -3,6 +3,7 @@ __author__ = 'latty'
 import timeout_decorator  # url: https://pypi.python.org/pypi/timeout-decorator/0.3.2
 
 
+# url: http://deusyss.developpez.com/tutoriels/Python/args_kwargs/
 def wait_for_test_action(test_action, timeout=0.5, **kargs):
     """
     Methode generique pour attendre une action.
@@ -16,6 +17,10 @@ def wait_for_test_action(test_action, timeout=0.5, **kargs):
     :type kargs: dict
 
     :raise TimeoutError: Exception renvoyee si on depasse le timeout pour realiser l'action
+
+    urls:
+    - http://stackoverflow.com/questions/3898572/what-is-the-standard-python-docstring-format
+    -> http://stackoverflow.com/a/24385103
     """
     # use decorator 'timeout_decorator'
     @timeout_decorator.timeout(timeout)
