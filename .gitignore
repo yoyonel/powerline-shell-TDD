@@ -89,7 +89,7 @@ ENV/
 .ropeproject
 
 # PyCharm
-.idea
+#.idea
 
 # Coverage
 coverage/
