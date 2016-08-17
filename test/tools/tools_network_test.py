@@ -22,7 +22,7 @@ class TestToolsNetwork(BaseTest):
         laisse le script de tests communiquer sur cette adressage.
         """
         self.ip = '127.0.0.1'
-        self.port = 8080
+        self.port = 8081
 
     @decorator_wait_for_open_port
     def test_open_socket_for_listenning(self):

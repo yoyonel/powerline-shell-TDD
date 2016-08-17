@@ -14,10 +14,10 @@ def build_url(ip, port, path=""):
     :param path:
     :return:
 
-    >>> build_url("localhost", 8080)
-    'http://localhost:8080/'
-    >>> build_url("localhost", 8080, 'api/v1/apprecord')
-    'http://localhost:8080/api/v1/apprecord'
+    >>> build_url("localhost", 8081)
+    'http://localhost:8081/'
+    >>> build_url("localhost", 8081, 'api/v1/apprecord')
+    'http://localhost:8081/api/v1/apprecord'
     """
     return "http://{}:{}/{}".format(ip, port, path)
 
@@ -30,7 +30,7 @@ def perform_GET_request(ip, port, path=""):
     :param path:
     :return:
 
-    >>> ip='127.0.0.1'; port=8080; code_result = 201
+    >>> ip='127.0.0.1'; port=8081; code_result = 201
     >>> remote_tcp_port_is_free_bash_version(host=ip, port=port)
     True
     >>> # url: http://stackoverflow.com/questions/16640054/minimal-web-server-using-netcat
@@ -57,7 +57,7 @@ def perform_POST_request(ip, port, path="", data=None, json=None):
     :param json:
     :return:
 
-    >>> ip='127.0.0.1'; port=8080; code_result = 202
+    >>> ip='127.0.0.1'; port=8081; code_result = 202
     >>> remote_tcp_port_is_free_bash_version(host=ip, port=port)
     True
     >>> bash_cmds_for_dummy_httpserver = "while true; do { echo 'HTTP/1.1 %d OK\\n\\r';}| nc -l %s %d; done" % (code_result, ip, port)
