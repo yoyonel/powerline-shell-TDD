@@ -9,11 +9,14 @@ from functools import wraps
 
 def wait_for_available_port(ip, port, timeout=0.5):
     """
+    Wait for available port on ip address (with timeout).
 
-    :param ip:
-    :param port:
-    :param timeout:
-    :return:
+    @param ip: string representation of IP to test
+        @type ip: str
+    @param port: port specification
+        @type port: integer
+    @param timeout: max timeout used for waiting
+        @type timeout: float
     """
 
     def action_wait_for_avalaible_port(_ip, _port):
@@ -49,18 +52,18 @@ def decorator_wait_for_open_port(method, timeout=0.5):
     return _impl
 
 
-def open_socket_for_listenning(adress_family=socket.AF_INET,
+def open_socket_for_listenning(address_family=socket.AF_INET,
                                socket_type=socket.SOCK_STREAM,
-                               adress='', port=8080,
+                               address='', port=8080,
                                max_nb_clients_for_listenning=1):
     """
 
-    :param adress_family:
-    :type adress_family: integer
+    :param address_family:
+    :type address_family: integer
     :param socket_type:
     :type socket_type: integer
-    :param adress:
-    :type adress: string
+    :param address:
+    :type address: string
     :param port:
     :type port: integer
     :param max_nb_clients_for_listenning:
@@ -70,9 +73,9 @@ def open_socket_for_listenning(adress_family=socket.AF_INET,
 
     """
     # construction de la socket
-    connexion = socket.socket(adress_family, socket_type)
+    connexion = socket.socket(address_family, socket_type)
     # connexion de la socket
-    connexion.bind((adress, port))
+    connexion.bind((address, port))
     #
     connexion.listen(max_nb_clients_for_listenning)
 
