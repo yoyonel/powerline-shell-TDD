@@ -22,7 +22,7 @@ class TestToolsNetwork(BaseTest):
         laisse le script de tests communiquer sur cette adressage.
         """
         self.ip = '127.0.0.1'
-        self.port = 8080
+        self.port = 1234
 
     @decorator_wait_for_open_port
     def test_open_socket_for_listenning(self):
@@ -32,7 +32,7 @@ class TestToolsNetwork(BaseTest):
         Utilisation de la lib python: 'socket'
         """
         # On recupere l'object resultant de l'ouverture d'un port pour ecoute
-        conn = open_socket_for_listenning(adress=self.ip, port=self.port)
+        conn = open_socket_for_listenning(address=self.ip, port=self.port)
         # On verifie le type de l'objet recupere
         self.assertEqualEllipsis(str(conn), '<socket._socketobject object at 0x...>')
         # On ferme la connexion
