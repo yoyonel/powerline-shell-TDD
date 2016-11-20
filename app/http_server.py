@@ -15,7 +15,7 @@ import cgi
 # - https://docs.python.org/3/library/dis.html#opcode-STORE_SUBSCR
 # -> au final, sur des operations "aussi courtes", l'interpreteur python est deja protege.
 
-class LocalData_without_Mutex(object):
+class LocalDataWithoutMutex(object):
     """
 
     """
@@ -26,17 +26,17 @@ class LocalData_without_Mutex(object):
         """
 
         """
-        return LocalData_without_Mutex._records[id_record]
+        return LocalDataWithoutMutex._records[id_record]
 
     @staticmethod
     def set_record(id_record, record_):
         """
 
         """
-        LocalData_without_Mutex._records[id_record] = record_
+        LocalDataWithoutMutex._records[id_record] = record_
 
 
-class LocalData_with_Mutex(object):
+class LocalDataWithMutex(object):
     """
 
     """
@@ -47,10 +47,13 @@ class LocalData_with_Mutex(object):
     def get_record(id_record):
         """
         Mutex safe (static) method to get a record
+
+        :param id_record:
+        :return:
         """
-        LocalData_with_Mutex._lock.acquire()
-        record = LocalData_with_Mutex._records[id_record]
-        LocalData_with_Mutex._lock.release()
+
+        with LocalDataWithMutex._lock:
+            record = LocalDataWithMutex._records[id_record]
         return record
 
     @staticmethod
@@ -58,12 +61,11 @@ class LocalData_with_Mutex(object):
         """
         Mutex safe (static) method to set a record
         """
-        LocalData_with_Mutex._lock.acquire()
-        LocalData_with_Mutex._records[id_record] = record_
-        LocalData_with_Mutex._lock.release()
+        with LocalDataWithMutex._lock:
+            LocalDataWithMutex._records[id_record] = record_
 
 
-LocalData = LocalData_without_Mutex
+LocalData = LocalDataWithoutMutex
 # LocalData = LocalData_with_Mutex
 
 
@@ -192,6 +194,10 @@ class SimpleHTTPServer(object):
 
         def __init__(self, message, *args):
             """
+
+            :param message:
+            :param args:
+            :return:
             """
             self.message = message
             super(SimpleHTTPServer.SocketError, self).__init__(message, *args)
@@ -200,6 +206,12 @@ class SimpleHTTPServer(object):
 
     class StartError(Exception):
         def __init__(self, message, errors):
+            """
+
+            :param message:
+            :param errors:
+            :return:
+            """
             # Call the base class constructor with the parameters it needs
             super(SimpleHTTPServer.StartError, self).__init__(message)
 
@@ -246,6 +258,7 @@ class SimpleHTTPServer(object):
         """
 
         :return:
+        :rtype: str
         """
         return self._thread_name
 
@@ -253,15 +266,16 @@ class SimpleHTTPServer(object):
     def thread_name(self, value):
         """
 
+        :param value:
         """
         self._thread_name = value
 
     def acquire(self, class_handler=HTTPRequestHandler):
         """
 
-        :param classHandler:
         url: http://stackoverflow.com/questions/19071512/socket-error-errno-48-address-already-in-use
-        :return:
+
+        :param classHandler:
         """
         try:
             self.server = ThreadedHTTPServer((self.ip, self.port), class_handler)
@@ -281,7 +295,7 @@ class SimpleHTTPServer(object):
         except Exception, e:
             raise self.StartError("", e)
 
-    def waitForThread(self):
+    def wait_for_thread(self):
         """
 
         :return:
@@ -294,10 +308,10 @@ class SimpleHTTPServer(object):
         :return:
         """
         self.server.shutdown()
-        self.waitForThread()
+        self.wait_for_thread()
 
 
 if __name__ == '__main__':
     server = SimpleHTTPServer("127.0.0.1", 8081)
     server.start()
-    server.waitForThread()
+    server.wait_for_thread()
