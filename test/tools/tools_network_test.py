@@ -32,11 +32,9 @@ class TestToolsNetwork(BaseTest):
         Utilisation de la lib python: 'socket'
         """
         # On recupere l'object resultant de l'ouverture d'un port pour ecoute
-        conn = open_socket_for_listenning(address=self.ip, port=self.port)
-        # On verifie le type de l'objet recupere
-        self.assertEqualEllipsis(str(conn), '<socket._socketobject object at 0x...>')
-        # On ferme la connexion
-        conn.close()
+        with open_socket_for_listenning(address=self.ip, port=self.port) as conn:
+            # On verifie le type de l'objet recupere
+            self.assertEqualEllipsis(str(conn), '<socket._socketobject object at 0x...>')
 
     @decorator_wait_for_open_port
     def test_open_socket_for_listenning_netcat(self):
@@ -47,11 +45,9 @@ class TestToolsNetwork(BaseTest):
         Utilisation de la lib python: 'socket'
         """
         # On recupere le processus lie a l'ouverture d'un port pour ecoute de socket
-        process = open_socket_for_listenning_netcat(ip=self.ip, port=self.port)
-        # On verifie le type de l'objet recupere
-        self.assertEqualEllipsis(str(process), '<subprocess.Popen object at 0x...>')
-        # On termine le processus
-        process.terminate()
+        with open_socket_for_listenning_netcat(ip=self.ip, port=self.port) as process:
+            # On verifie le type de l'objet recupere
+            self.assertEqualEllipsis(str(process), '<subprocess.Popen object at 0x...>')
 
     @decorator_wait_for_open_port
     def test_remote_tcp_port_is_free_netcat(self):
@@ -65,11 +61,9 @@ class TestToolsNetwork(BaseTest):
         self.assertTrue(remote_tcp_port_is_free(port=self.port))
 
         # Ouverture d'une socket en mode listening
-        p = open_socket_for_listenning_netcat(self.ip, self.port)
-        # On verifie que le port n'est plus libre (acquit)
-        self.assertFalse(remote_tcp_port_is_free_bash_version(host=self.ip, port=self.port))
-        # On termine le processus netcat => on termine l'acquisition du port
-        p.terminate()
+        with open_socket_for_listenning_netcat(self.ip, self.port) as p:
+            # On verifie que le port n'est plus libre (acquit)
+            self.assertFalse(remote_tcp_port_is_free_bash_version(host=self.ip, port=self.port))
 
         # ############################################################
         # [SYNCH] On attend d'avoir le port cible libre (available)
@@ -90,11 +84,10 @@ class TestToolsNetwork(BaseTest):
         self.assertTrue(remote_tcp_port_is_free(port=self.port))
 
         # Ouverture d'une socket en mode listening du port 8080
-        conn = open_socket_for_listenning(port=self.port)
-        # On verifie que le port n'est plus libre (acquit)
-        self.assertFalse(remote_tcp_port_is_free(port=self.port))
-        # On ferme la connection (et normalement on libere le port)
-        conn.close()
+        with open_socket_for_listenning(port=self.port) as conn:
+            # On verifie que le port n'est plus libre (acquit)
+            self.assertFalse(remote_tcp_port_is_free(port=self.port))
+
         # On verifie que le port est disponible (libre)
         self.assertTrue(remote_tcp_port_is_free(port=self.port))
 

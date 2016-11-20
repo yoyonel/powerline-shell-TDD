@@ -17,7 +17,7 @@ from tools.tools_threads import is_thread_alive, is_thread_daemon
 # - http://code.tutsplus.com/tutorials/beginning-test-driven-development-in-python--net-30137
 # - https://docs.python.org/2/library/unittest.html
 
-class Test_HTTPServer(unittest.TestCase):
+class TestHTTPServer(unittest.TestCase):
     """
 
     """
@@ -139,7 +139,7 @@ class Test_HTTPServer(unittest.TestCase):
             """
 
             """
-            super(Test_HTTPServer.Test_HTTPRequestHandler, self).do_GET()
+            super(TestHTTPServer.Test_HTTPRequestHandler, self).do_GET()
             #
             LocalData._records['access_to_get'] = None
 
